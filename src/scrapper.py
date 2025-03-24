@@ -15,8 +15,8 @@ import datetime
 class Scrapper:
 
     def __init__(self):
-        self.source_url = 'https://sistemaswebb3-listados.b3.com.br/indexPage'
-        #self.source_url = 'https://sistemaswebb3-listados.b3.com.br/indexPage/day/IBOV?language=pt-br'
+        #self.source_url = 'https://sistemaswebb3-listados.b3.com.br/indexPage'
+        self.source_url = 'https://sistemaswebb3-listados.b3.com.br/indexPage/day/IBOV'
 
     def download_data(self, url):
         '''

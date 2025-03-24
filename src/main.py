@@ -1,22 +1,28 @@
 import os 
+import uvicorn
 
 from scrapper import Scrapper
 from aws_s3 import AwsS3
+from api import ApiEndpoints
 
 def run():
 
     '''
     Execução do scrapper para extracao dos dados
     '''
-    
-    scraper = Scrapper()
 
-    dest_files = scraper.run()
+    uvicorn.run("endpoints.api:server.app", host="127.0.0.1", port=8000, reload=True)
 
-    for f in dest_files:
-        if "Dia_" in f and ".parquet" not in f:
-            aws_s3 = AwsS3()
-            aws_s3.upload_file("dados-brutos", f)
+    api = ApiEndpoints()
+
+#    scraper = Scrapper()
+
+#    dest_files = scraper.run()
+
+#    for f in dest_files:
+#        if "Dia_" in f and ".parquet" not in f:
+#            aws_s3 = AwsS3()
+#            aws_s3.upload_file("raw", f)
 
 if __name__ == '__main__':
 

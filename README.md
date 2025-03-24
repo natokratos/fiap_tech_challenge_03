@@ -46,3 +46,5 @@ us-east-1
 json
 
 docker logs -f localstack-main
+
+pip freeze > requirements.txt
