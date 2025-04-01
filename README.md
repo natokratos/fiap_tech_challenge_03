@@ -18,6 +18,10 @@ pyenv install -l
 pyenv install 3.13.0
 
 pyenv virtualenv 3.13.0 venv_3.13.0
+--
+source venv_3.13.0/bin/activate
+pyenv virtualenvs           
+pip3.13 install poetry 
 
 pyenv global 3.13.0
 
@@ -48,3 +52,15 @@ json
 docker logs -f localstack-main
 
 pip freeze > requirements.txt
+
+poetry install
+poetry lock
+poetry run python3.13 src/main.py
+aws lambda create-function --function-name lambda-scrapper1 --runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-exec --zip-file fileb://app_package.zip --endpoint=http://localhost:4566
+aws lambda list-functions --endpoint=http://localhost:4566 | grep lambda-scrapper
+aws lambda get-function --function-name lambda-scrapper --endpoint=http://localhost:4566
+aws iam put-role-policy --role-name lambda-exec --policy-name AssumeRolePolicyDocument --policy-document '{ "Version": "2012-10-17", "Statement": [ { "Effect": "Allow", "Action": "*", "Resource": "*" }] }' --endpoint=http://localhost:4566
+aws iam list-role-policies --role-name lambda-exec
+
+SELECT schema_name FROM information_schema.schemata
+SELECT table_schema, table_name FROM information_schema.tables

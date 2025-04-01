@@ -11,12 +11,13 @@ import shutil
 import platform 
 import time
 import datetime
+import psycopg2
 
 class Scrapper:
 
     def __init__(self):
-        #self.source_url = 'https://sistemaswebb3-listados.b3.com.br/indexPage'
-        self.source_url = 'https://sistemaswebb3-listados.b3.com.br/indexPage/day/IBOV'
+        self.source_url = 'https://sistemaswebb3-listados.b3.com.br/indexPage'
+        #self.source_url = 'https://sistemaswebb3-listados.b3.com.br/indexPage/day/IBOV'
 
     def download_data(self, url):
         '''
@@ -26,11 +27,11 @@ class Scrapper:
         print(f"Plataforma [{platform.system()}] ...")
 
         if "Linux" in platform.system():
-            service = Service(executable_path="./geckodriver-linux")
+            service = Service(executable_path="./src/geckodriver-linux")
         elif "Windows" in platform.system():
-            service = Service(executable_path="./geckodriver.exe")
+            service = Service(executable_path="./src/geckodriver.exe")
         else:
-            service = Service(executable_path="./geckodriver")
+            service = Service(executable_path="./src/geckodriver")
 
         options = Options()
         options.add_argument("--headless")
@@ -50,7 +51,7 @@ class Scrapper:
             driver.quit()
             return None
 
-    def download_csv(self, download_url, folder_path, file_name):
+    def download_csv(self, download_url, file_name):
 
         '''
         Realizar o download e escrita do CSV
@@ -60,11 +61,11 @@ class Scrapper:
         print(f"Baixando [{download_url}] ...")
 
         if "Linux" in platform.system():
-            service = Service(executable_path="./geckodriver-linux")
+            service = Service(executable_path="./src/geckodriver-linux")
         elif "Windows" in platform.system():
-            service = Service(executable_path="./geckodriver.exe")
+            service = Service(executable_path="./src/geckodriver.exe")
         else:
-            service = Service(executable_path="./geckodriver")
+            service = Service(executable_path="./src/geckodriver")
 
         options = Options()
         options.add_argument("--headless")
@@ -125,24 +126,70 @@ class Scrapper:
             print(f"Exception {repr(e)}")
             driver.quit()
             return None
+    
+    def add_date_csv(self, file_name, outfile, file_date):
+        print(f"Add Date CSV {file_name} {outfile}")
+        fw = open(outfile, "w")
+        first_line = True
+        with open(file_name, 'r') as f:
+            for line in f:
+                if first_line:
+                    #line = "Codigo;Acao;Tipo;QtdeTeorica;Part;Data;\n"
+                    first_line = False
+                elif "Total" not in line and "Redutor" not in line:
+                    line = line.replace("\n", "").replace(".", "").replace(",", ".") + file_date + "\n"
+                    print(f"line {line}")
+                    fw.write(line)
+        fw.close()
+
+        return outfile
+
+    def import_csv(self, file_name):
+        print(f"Importando CSV {file_name}")
+
+        try:
+            connection = psycopg2.connect(database="postgres", user='postgres', password='postgres', host="localhost", port=5432)
+            connection.autocommit = True
+        except:
+            print("Nao consegui conectar ao banco de dados")
+            return
+        
+        cursor = connection.cursor()
+
+        try:
+            f = open(file_name, 'r')
+            cursor.copy_from(f, "raw_data", sep=';')
+            f.close()
+        except:
+            print(f"Os dados ja foram inseridos no banco de dados [{file_name}]")
 
     def run(self):
 
         print(f"Baixando os dados da B3 ...\n")
-        data= self.download_data(self.source_url + "/theorical/IBOV?language=pt-br")
+        data= self.download_data(self.source_url + "/day/IBOV?language=pt-br")
+        #print(f"data {data}")
 
 #https://sistemaswebb3-listados.b3.com.br/indexPage/theorical/IBOV?language=pt-br
 #https://sistemaswebb3-listados.b3.com.br/indexPage/day/IBOV?language=pt-br
         content = ""
         for d in data:
-            if d != "Download":
+            print(f"d {d}")
+            if d != "Download" and 'Dia' in d:
                 print(f"[{d}] [{data[d]}]")
                 file_name = f"{d}"
                 if "-" not in d:
                     file_name = f"{d} -"
                 file_path = './temp_files'
                 print(f"Download CSV [{d}] ...")
-                content = self.download_csv(data[d], file_path, file_name)
+                content = self.download_csv(data[d], file_name)
+                print(f"X {content}")
+                print(f"X {"/".join(content[0].rsplit("/")[:-2]) + "/fw" + "".join(content[0].rsplit("/")[-1])}")
+                print(f"X {content[0].rsplit("/")[-2]}")
+                adjusted_file = self.add_date_csv(content[0], 
+                                                  "/".join(content[0].rsplit("/")[:-2]) + "/fw" + "".join(content[0].rsplit("/")[-1]), 
+                                                  content[0].rsplit("/")[-2])
+                #content = self.import_csv(adjusted_file)
+                self.import_csv(adjusted_file)
 
         print(f"{content}\n")
 

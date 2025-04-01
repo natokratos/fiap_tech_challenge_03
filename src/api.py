@@ -1,9 +1,14 @@
+import os
+
 from fastapi import FastAPI
+from scrapper import Scrapper
 
 app = FastAPI()
 
 class ApiEndpoints:
     def __init__(self):
+#        self.app = FastAPI()
+        self.aws_endpoint = 'http://localhost:4566'
         try:
             if os.environ['AWS_ENDPOINT_URL']:
                 self.aws_endpoint = os.environ['AWS_ENDPOINT_URL']
@@ -11,10 +16,29 @@ class ApiEndpoints:
             self.aws_endpoint = 'http://localhost:4566'
         print(f"AWS_ENDPOINT_URL [ {self.aws_endpoint} ]")
         
-    @app.get("/train")
-    async def train(self):
-        print(f"TRAIN!")
+        @app.get("/")
+        async def read_root():
+            return {"API": "V1"}
 
-    @app.predict("/predict")
-    def predict(self):
-        print(f"PREDICT!")        
+        @app.get("/load")
+        async def load():
+            scraper = Scrapper()
+
+            dest_files = scraper.run()
+
+            # for f in dest_files:
+            #     if "Dia_" in f and ".parquet" not in f:
+            #         aws_s3 = AwsS3()
+            #         aws_s3.upload_file("raw", f)
+            #         return {"API": "V1"}
+            return { "message" : f"LOAD! {dest_files}"}
+
+        @app.get("/train")
+        async def train():
+            return { "message" : f"TRAIN! {self.aws_endpoint}"}
+
+        @app.get("/predict")
+        def predict():
+            return { "message" : f"PREDICT! {self.aws_endpoint}"}
+        
+server = ApiEndpoints()

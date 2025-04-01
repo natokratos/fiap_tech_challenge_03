@@ -19,3 +19,7 @@ zip -r9  ${ZIP_DIR} ${PKG_DIR}/
 zip -r9  ${APP_ZIP_DIR} ${APP_PKG_DIR}/
 
 rm -rf ${APP_PKG_DIR}
+
+pip3.13 install poetry
+pip3.13 install fastapi[standard]
+pip3.13 install uvicorn[standard]

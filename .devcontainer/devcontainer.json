@@ -45,7 +45,11 @@
                 "ms-python.python",
                 "ms-python.isort",
                 "ms-python.black-formatter"
-            ]
+            ],
+            "settings": {
+                // Set this to false
+                "dev.containers.dockerCredentialHelper": false
+            }
         }
     }    
 }

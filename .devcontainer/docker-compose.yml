@@ -1,5 +1,21 @@
 version: "2.34.0"
 services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "127.0.0.1:5432:5432"   
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data 
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8090:8080
+
   localstack:
     container_name: "localstack-main"
     image: localstack/localstack-pro  # required for Pro
@@ -30,3 +46,6 @@ services:
       - "../app_package.zip:/root/app_package.zip"
       - "./volume:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+
+volumes:
+  pgdata:
