@@ -16,7 +16,8 @@ dependencies = [
     "standard-imghdr (>=3.13.0,<4.0.0)",
     "selenium (>=4.30.0)",
     "pandas (>=2.2.3)",
-    "psycopg2-binary (>=2.9.10)"
+    "psycopg2-binary (>=2.9.10)",
+    "scikit-learn (>=1.6)"
 ]
 
 [tool.poetry]

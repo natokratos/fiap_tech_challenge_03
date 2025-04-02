@@ -12,6 +12,7 @@ import platform
 import time
 import datetime
 import psycopg2
+import pandas as pd
 
 class Scrapper:
 

@@ -2,6 +2,7 @@ import os
 
 from fastapi import FastAPI
 from scrapper import Scrapper
+from pipeline import Pipeline
 
 app = FastAPI()
 
@@ -35,10 +36,16 @@ class ApiEndpoints:
 
         @app.get("/train")
         async def train():
+            pipeline = Pipeline()
+
+            pipeline.train()
             return { "message" : f"TRAIN! {self.aws_endpoint}"}
 
         @app.get("/predict")
         def predict():
-            return { "message" : f"PREDICT! {self.aws_endpoint}"}
+            pipeline = Pipeline()
+            
+            accuracy = pipeline.predict()
+            return { "message" : f"PREDICT! {self.aws_endpoint} accuracy {accuracy}"}
         
 server = ApiEndpoints()
