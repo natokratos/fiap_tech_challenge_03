@@ -116,4 +116,4 @@ class Pipeline:
         #     return f"Nao consegui　inserir os dados referentes as metricas no banco de dados: DATE [INSERT INTO METRICS (date, mse, rmse, mape) VALUES ({self.metric_date}, {mse}, {rmse}, {mape})]"
 
         #return f"DATE: {self.metric_date} MSE: {mse} RMSE {rmse} MAPE {mape}"
-        return self.metric_date, r2score, mse, rmse, mape, self.model.coef_, self.model.intercept_, self.x_test.astype('str'), self.y_test.astype('str'), y_pred
+        return self.metric_date, r2score, mse, rmse, mape, self.model.coef_, self.model.intercept_, self.x_test.astype('str'), self.y_test.astype('str'), y_pred, y_pred.astype('str')

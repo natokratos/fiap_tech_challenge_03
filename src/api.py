@@ -45,7 +45,7 @@ class ApiEndpoints:
         def predict():
             pipeline = Pipeline()
 
-            metric_date, r2score, mse, rmse, mape, coef_, intercept_e, x_test, y_test, y_pred = pipeline.predict()
-            return { "message" : f"{metric_date}|{r2score}|{mse}|{rmse}|{mape}|{coef_}|{intercept_e}|{x_test}|{y_test}|{y_pred}"}
+            metric_date, r2score, mse, rmse, mape, coef_, intercept_e, x_test, y_test, y_pred, y_pred1 = pipeline.predict()
+            return { "message" : f"{metric_date}|{r2score}|{mse}|{rmse}|{mape}|{coef_}|{intercept_e}|{x_test}|{y_test}|{y_pred}|{y_pred1}"}
         
 server = ApiEndpoints()
