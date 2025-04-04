@@ -1,66 +1,40 @@
 # fiap_tech_challenge_03
 
-WSL
+## Pre-requisitos
+- Deve ser aberto no VSCODE, para que execute o docker-compose que cria os servicos docker necessarios para que funcione.
+- O Python 3.13.0 deve estar instalado
+- Este projeto usa o poetry para controlar as dependecias, localizadas no arquivo pyproject.toml.
 
-https://docs.localstack.cloud/user-guide/integrations/devcontainers/#vscode
+## Objetivo
+Este projeto tem como objetivo baixar os dados das Carteiras Diarias do movimento da B3 e carregar num banco de dados para que fiquem disponiveis para uma API. Esta tem a funcao de carregar os dados deste banco de dados e treinar um modelo de Machine Learning que fara a predicao dos valores de quantidade teorica baseado nos dados historicos ja existentes. Este modelo ficara disponivel para que uma aplicacao de Dashboard obtenha as metricas relacionada.
 
-https://www.omgubuntu.co.uk/2022/04/how-to-install-firefox-deb-apt-ubuntu-22-04
-sudo apt-get install firefox
-sudo apt install libffi-dev
-sudo ldconfig
+## Funcionamento
+- **Download**
 
-https://gist.github.com/trongnghia203/9cc8157acb1a9faad2de95c3175aa875
+Nesta fase os arquivos das Carte Diarias do movimento da B3, que sao baixados num diretorio dentro deste repositorio chamado **temp_files/downloaded**. Logo em seguida sao movidos para o diretorio **temp_files/AAAAMMDD**, para que fiquem organizados por data, ja que a data nao existe dentro do arquivo como sendo uma coluna.
+- **Banco de Dados**
 
-git clone https://github.com/yyuu/pyenv-virtualenv.git $HOME/.pyenv/plugins/pyenv-virtualenv
+Com o arquivo da movimentacao diaria baixado, suas informacoes sao inseridas numa tabela de uma banco de dados POSTGRES (iniciado pelo ambiente virtual do VSCODE) chamada raw_data.
+- **API**
 
-pyenv install -l
+Para executara a API basta executar os seguintes comandos:
+- source venv_3.13.0/bin/activate
+- poetry run python3.13 src/main.py
+Apos a inicializacao, deve ser deixada em execucao para que a aplicacao de Dashboard de Metricas funcione.
 
-pyenv install 3.13.0
+A documentacao da API pode ser localizada neste endereco **http://localhost:8080/docs**
 
-pyenv virtualenv 3.13.0 venv_3.13.0
---
-source venv_3.13.0/bin/activate
-pyenv virtualenvs           
-pip3.13 install poetry 
+Os endpoints disponiveis sao:
+- **load**: faz o download e carrega os dados da tabela raw_data do banco de dados e os deixa disponivel para um modelo de Regressao Linear.
+- **train**: treina o modelo com todos os dados carregados atualmente e anteriormente
+- **predict**: faz a previsao das quantidades teoricas baseado no treinamento do modelo feito anteriormente
+## Dashboard de Metricas
 
-pyenv global 3.13.0
+Um dashboard de metricas simples sobre a qualidade do modelo. Para executa-lo basta executar os seguintes comandos (em outro terminal):
+- source venv_3.13.0/bin/activate
+- poetry run python3.13 src/dashboard.py
 
-pip install --upgrade pip
+A aplicacao executara os endpoints acima em ordem (load, train e predict) e obtera as metricas em relacao a qualidade do modelo. Estas sao exibidas na saida do console.
 
-pip3 install selenium
-pip3 install bs4
-pip3 install requests
-pip3 install pandas
-pip3 install lxml
-pip3 install boto3
-pip3 install awscli
-pip3 install fastparquet
-
-https://stackoverflow.com/questions/64086810/navigate-pagination-with-selenium-webdriver
-https://stackoverflow.com/questions/63881801/element-is-not-clickable-at-point-because-another-element-obscures-it
-https://stackoverflow.com/questions/75688714/python-selenium-how-to-click-element-in-pagination-that-is-not-a-button-a-hr
-https://stackoverflow.com/questions/30002313/finding-elements-by-class-name-with-selenium-in-python
-
-aws s3api create-bucket --bucket dados-brutos --endpoint=http://localhost:4566
-aws s3 ls --endpoint=http://localhost:4566
-
-aws configure
-local | local
-us-east-1
-json
-
-docker logs -f localstack-main
-
-pip freeze > requirements.txt
-
-poetry install
-poetry lock
-poetry run python3.13 src/main.py
-aws lambda create-function --function-name lambda-scrapper1 --runtime python3.9 --role arn:aws:iam::000000000000:role/lambda-exec --zip-file fileb://app_package.zip --endpoint=http://localhost:4566
-aws lambda list-functions --endpoint=http://localhost:4566 | grep lambda-scrapper
-aws lambda get-function --function-name lambda-scrapper --endpoint=http://localhost:4566
-aws iam put-role-policy --role-name lambda-exec --policy-name AssumeRolePolicyDocument --policy-document '{ "Version": "2012-10-17", "Statement": [ { "Effect": "Allow", "Action": "*", "Resource": "*" }] }' --endpoint=http://localhost:4566
-aws iam list-role-policies --role-name lambda-exec
-
-SELECT schema_name FROM information_schema.schemata
-SELECT table_schema, table_name FROM information_schema.tables
+## Melhorias
+Existem melhorias a serem feitas na aplicacao, como salvar o modelo de uma forma mais eficiente para o uso das APIs e uma aplicacao que efetivamente mostre um grafico sobre o desempenho do modelo.
