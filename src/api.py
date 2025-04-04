@@ -39,13 +39,13 @@ class ApiEndpoints:
             pipeline = Pipeline()
 
             pipeline.train()
-            return { "message" : f"TRAIN! {self.aws_endpoint}"}
+            return { "message" : f"TRAIN!"}
 
         @app.get("/predict")
         def predict():
             pipeline = Pipeline()
-            
-            accuracy = pipeline.predict()
-            return { "message" : f"PREDICT! {self.aws_endpoint} accuracy {accuracy}"}
+
+            metric_date, r2score, mse, rmse, mape, coef_, intercept_e, x_test, y_test, y_pred = pipeline.predict()
+            return { "message" : f"{metric_date}|{r2score}|{mse}|{rmse}|{mape}|{coef_}|{intercept_e}|{x_test}|{y_test}|{y_pred}"}
         
 server = ApiEndpoints()
